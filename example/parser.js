@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const directoryPath = "./example";
+const directoryPath = ".";
 const outputDir = "generated";
 
 // Remove the output directory if it exists
