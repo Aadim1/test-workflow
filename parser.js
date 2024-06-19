@@ -2,8 +2,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const directoryPath = ".";
-const outputDir = "generated";
+const directoryPath = "example/";
+const outputDir = "example/generated";
 
 // Remove the output directory if it exists
 if (fs.existsSync(outputDir)) {
@@ -51,7 +51,7 @@ fs.readdir(directoryPath, (err, files) => {
         fs.writeFileSync(outputFile, input);
       });
 
-      fs.writeFile("./index.js", exports.join("\n"), (err) => {
+      fs.writeFile("/index.js", exports.join("\n"), (err) => {
         if (err) {
           console.error(`Error writing file ${outputFile}:`, err);
           return;
