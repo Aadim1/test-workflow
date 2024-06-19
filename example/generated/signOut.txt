@@ -1,3 +1,3 @@
 import { signOut } from "aws-amplify/auth";
 
-await signOut();
+await signOut({ global: true });
