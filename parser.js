@@ -37,7 +37,7 @@ fs.readdir(directoryPath, (err, files) => {
         const outputFile = path.join(outputDir, file.replace(".js", ".txt"));
 
         if (fileName == "index") {
-          console.log("======Ignoring Index file=======");
+          console.log("======Ignoring Index file= ======");
           return;
         }
 
