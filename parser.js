@@ -53,7 +53,7 @@ fs.readdir(directoryPath, (err, files) => {
 
       fs.writeFile("/index.js", exports.join("\n"), (err) => {
         if (err) {
-          console.error(`Error writing file ${outputFile}:`, err);
+          console.error(`Error writing file index.js:`, err);
           return;
         }
         console.log(`Successfully added exports.`);
