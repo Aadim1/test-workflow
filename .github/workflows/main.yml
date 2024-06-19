@@ -20,33 +20,27 @@ jobs:
       with:
         node-version: '20'
         
-    - name: check-modified-files
-      id: check_files
+    - shell: pwsh
+      # Give an id to the step, so we can reference it later
+      id: check_file_changed
       run: |
-        echo "=============== list modified files ==============="
-        git diff --name-only HEAD^ HEAD
-        
-        echo "========== check paths of modified files =========="
-        git diff --name-only HEAD^ HEAD &gt; files.txt
-        while IFS= read -r file
-        do
-          echo $file
-          if [[ $file != example/* ]]; then
-            echo "This modified file is not under the 'db' folder."
-            echo "::set-output name=run_job::false"
-            break
-          else
-            echo "::set-output name=run_job::true"
-          fi
-        done &lt; files.txt
+        # Diff HEAD with the previous commit
+        $diff = git diff --name-only HEAD^ HEAD
+
+        # Check if a file under docs/ or with the .md extension has changed (added, modified, deleted)
+        $SourceDiff = $diff | Where-Object { $_ -match '^example/' -or $_ -match '.js$' }
+        $HasDiff = $SourceDiff.Length -gt 0
+
+        # Set the output named "docs_changed"
+        Write-Host "::set-output name=docs_changed::$HasDiff"
 
     - name: Convert JS to TXT
-      if: steps.check-modified-files.run_job == 'true'
+      if: steps.check_file_changed.run_job == 'true'
       run: node parser.js
       working-directory: ./example
 
     - name: Commit and push changes
-      if: steps.check-modified-files.run_job == 'true'
+      if: steps.check_file_changed.run_job == 'true'
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
