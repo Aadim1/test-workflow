@@ -4,7 +4,7 @@ name: Convert JS to TXT
 on:
   pull_request:
     paths:
-      - 'example/**'
+      - 'example/*' # Only run when files in the example directory are changed
 
 jobs:
   convert-js-to-txt:
@@ -20,11 +20,22 @@ jobs:
       with:
         node-version: '20'
 
+    - name: Cache generated files
+      id: cache-generated
+      uses: actions/cache@v3
+      with:
+        path: example/generated
+        key: ${{ runner.os }}-generated-${{ hashFiles('example/**/*') }}
+        restore-keys: |
+          ${{ runner.os }}-generated-
+
     - name: Convert JS to TXT
+      if: steps.cache-generated.outputs.cache-hit != 'true'
       run: node parser.js
       working-directory: ./example
 
     - name: Commit and push changes
+      if: steps.cache-generated.outputs.cache-hit != 'true'
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
