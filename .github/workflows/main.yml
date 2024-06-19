@@ -35,10 +35,12 @@ jobs:
         fi
 
     - name: Convert JS to TXT
+      if: steps.check-example-changed.outputs.example_changed == 'true'
       run: node parser.js
       working-directory: ./example
 
     - name: Commit and push changes
+      if: steps.check-example-changed.outputs.example_changed == 'true'
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
