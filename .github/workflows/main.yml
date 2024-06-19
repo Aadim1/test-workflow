@@ -20,31 +20,36 @@ jobs:
       with:
         node-version: '20'
         
-    - name: Check if example directory changed
-      id: check-example-changed
+    - name: check-modified-files
+      id: check_files
       run: |
-        if git rev-parse HEAD~ >/dev/null 2>&1; then
-          git diff --quiet HEAD HEAD~ -- example
-          if [ $? -eq 0 ]; then
-            echo "example_changed=false" >> $GITHUB_OUTPUT
+        echo "=============== list modified files ==============="
+        git diff --name-only HEAD^ HEAD
+        
+        echo "========== check paths of modified files =========="
+        git diff --name-only HEAD^ HEAD &gt; files.txt
+        while IFS= read -r file
+        do
+          echo $file
+          if [[ $file != db/* ]]; then
+            echo "This modified file is not under the 'db' folder."
+            echo "::set-output name=run_job::false"
+            break
           else
-            echo "example_changed=true" >> $GITHUB_OUTPUT
+            echo "::set-output name=run_job::true"
           fi
-        else
-          echo "example_changed=true" >> $GITHUB_OUTPUT
-        fi
+        done &lt; files.txt
 
     - name: Convert JS to TXT
-      if: steps.check-example-changed.outputs.example_changed == 'true'
+      if: steps.check-modified-files.run_job == 'true'
       run: node parser.js
       working-directory: ./example
 
     - name: Commit and push changes
-      if: steps.check-example-changed.outputs.example_changed == 'true'
+      if: steps.check-modified-files.run_job == 'true'
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
         git add example/generated
         git commit -m "Generate text files from JavaScript files"
-        git pull --rebase origin ${{ github.head_ref }}
         git push origin HEAD:${{ github.head_ref }}
