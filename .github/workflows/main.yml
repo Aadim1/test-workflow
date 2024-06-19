@@ -1,0 +1,33 @@
+# .github/workflows/convert-js-to-txt.yml
+name: Convert JS to TXT
+
+on:
+  pull_request:
+    paths:
+      - 'example/**'
+
+jobs:
+  convert-js-to-txt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch all history for all branches and tags
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Convert JS to TXT
+      run: node parser.js
+      working-directory: ./example
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        git add example/generated
+        git commit -m "Generate text files from JavaScript files"
+        git push origin HEAD:${{ github.head_ref }}
