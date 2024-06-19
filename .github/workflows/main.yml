@@ -46,4 +46,5 @@ jobs:
         git config --global user.email 'actions@github.com'
         git add example/generated
         git commit -m "Generate text files from JavaScript files"
+        git pull --rebase origin ${{ github.head_ref }}
         git push origin HEAD:${{ github.head_ref }}
