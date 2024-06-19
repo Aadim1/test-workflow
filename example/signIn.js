@@ -1,3 +1,6 @@
-import { signOut } from "aws-amplify/auth";
+import { signIn } from "aws-amplify/auth";
 
-await signOut();
+await signIn({
+  username: "test@amplify.com",
+  password: "Test123@",
+});
