@@ -12,31 +12,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0 # Fetch all history for all branches and tags
+      # with:
+      #   fetch-depth: 0 # Fetch all history for all branches and tags
 
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20'
 
-    - name: Check if example directory changed
-      id: check-example-changed
-      run: |
-        git diff --quiet HEAD HEAD~ -- example
-        if [ $? -eq 0 ]; then
-          echo "example_changed=false" >> $GITHUB_OUTPUT
-        else
-          echo "example_changed=true" >> $GITHUB_OUTPUT
-        fi
-
     - name: Convert JS to TXT
-      if: steps.check-example-changed.outputs.example_changed == 'true'
       run: node parser.js
       working-directory: ./example
 
     - name: Commit and push changes
-      if: steps.check-example-changed.outputs.example_changed == 'true'
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
