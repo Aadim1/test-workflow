@@ -20,30 +20,43 @@ jobs:
       with:
         node-version: '20'
         
-    - shell: pwsh
-      # Give an id to the step, so we can reference it later
-      id: check_file_changed
+    - name: Check if index.js changed
+      id: files_changed_check_
       run: |
-        # Diff HEAD with the previous commit
-        $diff = git diff --name-only HEAD^ HEAD
+        git diff --quiet example/index.js || echo "index_changed=true" >> $GITHUB_OUTPUT
+        git diff --quiet example/generated || echo "generated_changed=true" >> $GITHUB_OUTPUT
+        git diff --quiet example/ || echo "example_changed=true" >> $GITHUB_OUTPUT
 
-        # Check if a file under example/ has changed(including the parser)
-        $SourceDiff = $diff | Where-Object { $_ -match '^example/[^/]+\.js$' }
-        $HasDiff = $SourceDiff.Length -gt 0
-
-        # Set the output named "docs_changed"
-        Write-Host "::set-output name=run_job::$HasDiff"
+    - shell: pwsh
+      name: Check if files changed
+      id: files_changed_check
+      run: |
+        git diff --quiet example/index.js HEAD^ HEAD || echo "index_changed=true" >> $GITHUB_OUTPUT
+        git diff -- quiet example/generated HEAD^ HEAD || echo "generated_changed=true" >> $GITHUB_OUTPUT
+        $exampleDiff = git diff --name-only HEAD^ HEAD
+        
 
     - name: Convert JS to TXT
       if: steps.check_file_changed.outputs.run_job == 'true'
       run: node parser.js
-      working-directory: ./example
+      working-directory: .
 
-    - name: Commit and push changes
-      if: steps.check_file_changed.outputs.run_job == 'true'
+    - name: Setup and add files
+      id: setup_add_filed
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
         git add example/generated example/index.js
+        if [ -z "$(git status --porcelain)"]; then
+          echo "No changes to commit, omitting comit"
+          echo "can_commit=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected, proceeding to commit and push"
+          echo "can_commit=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit and push changes
+      if: steps.setup_add_files.outputs.can_commit == 'true'
+      run: |
         git commit -m "Generate text files from JavaScript files"
         git push origin HEAD:${{ github.head_ref }}
