@@ -12,7 +12,7 @@ if (fs.existsSync(outputDir)) {
 
 const EXPORT_STATEMENT = 'export { default as $1 } from "./$2"';
 
-// Create the output directory
+// Create the output director
 fs.mkdirSync(outputDir);
 
 // Read all files in the directory
