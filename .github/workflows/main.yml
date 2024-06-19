@@ -28,7 +28,7 @@ jobs:
         $diff = git diff --name-only HEAD^ HEAD
 
         # Check if a file under example/ has changed(including the parser)
-        $SourceDiff = $diff | Where-Object { $_ -match '^example/' }
+        $SourceDiff = $diff | Where-Object { $_ -match '^example/[^/]+\.js$' }
         $HasDiff = $SourceDiff.Length -gt 0
 
         # Set the output named "docs_changed"
@@ -44,6 +44,6 @@ jobs:
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
-        git add example/generated
+        git add example/generated example/index.js
         git commit -m "Generate text files from JavaScript files"
         git push origin HEAD:${{ github.head_ref }}
