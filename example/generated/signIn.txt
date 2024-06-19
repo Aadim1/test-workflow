@@ -2,5 +2,5 @@ import { signIn } from "aws-amplify/auth";
 
 await signIn({
   username: "test@amplify.com",
-  password: "Test123@",
+  password: "Test123",
 });
