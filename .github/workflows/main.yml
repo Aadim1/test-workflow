@@ -37,7 +37,6 @@ jobs:
         
 
     - name: Convert JS to TXT
-      if: steps.check_file_changed.outputs.run_job == 'true'
       run: node parser.js
       working-directory: .
 
