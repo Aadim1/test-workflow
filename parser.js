@@ -51,7 +51,7 @@ fs.readdir(directoryPath, (err, files) => {
         fs.writeFileSync(outputFile, input);
       });
 
-      fs.writeFile("/index.js", exports.join("\n"), (err) => {
+      fs.writeFile("index.js", exports.join("\n"), (err) => {
         if (err) {
           console.error(`Error writing file index.js:`, err);
           return;
