@@ -19,6 +19,20 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '20'
+        
+    - name: Check if example directory changed
+      id: check-example-changed
+      run: |
+        if git rev-parse HEAD~ >/dev/null 2>&1; then
+          git diff --quiet HEAD HEAD~ -- example
+          if [ $? -eq 0 ]; then
+            echo "example_changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "example_changed=true" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "example_changed=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Convert JS to TXT
       run: node parser.js
